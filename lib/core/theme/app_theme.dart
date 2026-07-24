@@ -56,7 +56,7 @@ class AppTheme {
         ),
         hintStyle: AppTextStyles.bodySecondary,
       ),
-      cardTheme: CardThemeData(
+      cardTheme: CardTheme(
         color: AppColors.card,
         elevation: 0,
         shape: RoundedRectangleBorder(

@@ -36,7 +36,7 @@ class NeonButton extends StatelessWidget {
           boxShadow: enabled
               ? [
                   BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.45),
+                    color: AppColors.primary.withOpacity(0.45),
                     blurRadius: 20,
                     spreadRadius: 1,
                     offset: const Offset(0, 6),
