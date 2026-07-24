@@ -4,6 +4,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/models/game.dart';
+import '../game_details/game_details_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -33,8 +34,6 @@ class HomeScreen extends StatelessWidget {
                     const _StatsRow(),
                     const SizedBox(height: 16),
                     const _TodayProgress(),
-                    const SizedBox(height: 24),
-                    const _QuickActionsRow(),
                     const SizedBox(height: 24),
                     FadeInUp(
                       delay: const Duration(milliseconds: 200),
@@ -229,49 +228,6 @@ class _TodayProgress extends StatelessWidget {
   }
 }
 
-class _QuickActionsRow extends StatelessWidget {
-  const _QuickActionsRow();
-
-  @override
-  Widget build(BuildContext context) {
-    final actions = [
-      (Icons.card_giftcard_rounded, 'Daily\nBonus', AppColors.secondary),
-      (Icons.checklist_rounded, 'Missions', AppColors.success),
-      (Icons.sports_esports_rounded, 'Mini\nGames', AppColors.primary),
-      (Icons.leaderboard_rounded, 'Leader-\nboard', AppColors.gold),
-    ];
-
-    return FadeInUp(
-      delay: const Duration(milliseconds: 180),
-      child: Row(
-        children: List.generate(actions.length, (i) {
-          final (icon, label, color) = actions[i];
-          return Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(right: i == actions.length - 1 ? 0 : 10),
-              child: GlassCard(
-                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
-                onTap: () {},
-                child: Column(
-                  children: [
-                    Icon(icon, color: color, size: 24),
-                    const SizedBox(height: 6),
-                    Text(
-                      label,
-                      textAlign: TextAlign.center,
-                      style: AppTextStyles.caption.copyWith(fontSize: 11),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-}
-
 class _GameCard extends StatelessWidget {
   final Game game;
 
@@ -280,7 +236,13 @@ class _GameCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlassCard(
-      onTap: () {},
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => GameDetailsScreen(game: game),
+          ),
+        );
+      },
       child: Row(
         children: [
           Container(
