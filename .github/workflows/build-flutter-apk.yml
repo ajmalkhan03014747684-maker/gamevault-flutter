@@ -1,0 +1,45 @@
+name: Build Flutter APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+
+      - name: Generate native Android wrapper (android/, ios/, etc.)
+        run: |
+          flutter create --org com.gamevault --project-name gamevault --platforms=android /tmp/scaffold
+          cp -r /tmp/scaffold/android ./android
+          cp -f /tmp/scaffold/.metadata ./.metadata || true
+          cp -f /tmp/scaffold/analysis_options.yaml ./analysis_options.yaml || true
+          cp -f /tmp/scaffold/.gitignore ./.gitignore || true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build debug APK
+        run: flutter build apk --debug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gamevault-flutter-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk

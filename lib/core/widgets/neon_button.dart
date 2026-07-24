@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
-/// Gradient button with neon glow shadow + ripple, used for primary actions
-/// like "Watch Rewarded Ad", "Login", "Submit Request".
 class NeonButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
-/// Typography system: Orbitron for headings, Rajdhani for body, Inter for numbers.
 class AppTextStyles {
   AppTextStyles._();
 

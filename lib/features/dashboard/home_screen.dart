@@ -3,7 +3,6 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/glass_card.dart';
 
-/// Temporary placeholder — replaced with the full Home Dashboard in Phase 2.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 

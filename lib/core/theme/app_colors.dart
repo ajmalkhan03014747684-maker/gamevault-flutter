@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
-/// GameVault color palette — matches the provided design spec exactly.
 class AppColors {
   AppColors._();
 
-  static const Color primary = Color(0xFF6C63FF);   // Primary Purple
-  static const Color secondary = Color(0xFFFF8A00);  // Secondary Orange
+  static const Color primary = Color(0xFF6C63FF);
+  static const Color secondary = Color(0xFFFF8A00);
   static const Color success = Color(0xFF22C55E);
   static const Color warning = Color(0xFFFACC15);
   static const Color error = Color(0xFFEF4444);
