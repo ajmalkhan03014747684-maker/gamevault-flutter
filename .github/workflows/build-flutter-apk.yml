@@ -31,6 +31,7 @@ jobs:
           cp -f /tmp/scaffold/.metadata ./.metadata || true
           cp -f /tmp/scaffold/analysis_options.yaml ./analysis_options.yaml || true
           cp -f /tmp/scaffold/.gitignore ./.gitignore || true
+          sed -i "s/id \"org.jetbrains.kotlin.android\" version \"[0-9.]*\"/id \"org.jetbrains.kotlin.android\" version \"1.9.24\"/" ./android/settings.gradle
 
       - name: Get dependencies
         run: flutter pub get
