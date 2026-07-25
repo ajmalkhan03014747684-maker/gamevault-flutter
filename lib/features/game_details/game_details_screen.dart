@@ -5,6 +5,7 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/neon_button.dart';
 import '../../core/models/game.dart';
+import '../cooldown/cooldown_screen.dart';
 
 enum _ScreenState { details, watching, success }
 
@@ -38,8 +39,11 @@ class _GameDetailsScreenState extends State<GameDetailsScreen> {
     });
   }
 
-  void _continue() {
+  Future<void> _continue() async {
     setState(() => _state = _ScreenState.details);
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => const CooldownScreen()),
+    );
   }
 
   @override
