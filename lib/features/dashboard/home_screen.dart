@@ -5,6 +5,7 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/models/game.dart';
 import '../game_details/game_details_screen.dart';
+import '../wallet/wallet_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -375,21 +376,32 @@ class _BottomNav extends StatelessWidget {
           children: List.generate(items.length, (i) {
             final (icon, label) = items[i];
             final selected = i == 0;
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon,
-                    color: selected ? AppColors.primary : AppColors.muted,
-                    size: 24),
-                const SizedBox(height: 3),
-                Text(
-                  label,
-                  style: AppTextStyles.caption.copyWith(
-                    fontSize: 10,
-                    color: selected ? AppColors.primary : AppColors.muted,
+            return GestureDetector(
+              onTap: () {
+                if (i == 2) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const WalletScreen(),
+                    ),
+                  );
+                }
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon,
+                      color: selected ? AppColors.primary : AppColors.muted,
+                      size: 24),
+                  const SizedBox(height: 3),
+                  Text(
+                    label,
+                    style: AppTextStyles.caption.copyWith(
+                      fontSize: 10,
+                      color: selected ? AppColors.primary : AppColors.muted,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             );
           }),
         ),
