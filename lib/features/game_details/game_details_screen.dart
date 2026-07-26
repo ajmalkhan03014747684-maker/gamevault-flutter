@@ -228,7 +228,6 @@ class _DetailsView extends StatelessWidget {
                     child: TweenAnimationBuilder<double>(
                       tween: Tween(begin: 0, end: progress),
                       duration: const Duration(milliseconds: 700),
-                      duration: const Duration(milliseconds: 700),
                       curve: Curves.easeOutCubic,
                       builder: (context, value, _) => LinearProgressIndicator(
                         value: value,
