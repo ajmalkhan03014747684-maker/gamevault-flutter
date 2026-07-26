@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../core/theme/app_colors.dart';
@@ -8,6 +9,8 @@ import '../../core/models/game.dart';
 import '../cooldown/cooldown_screen.dart';
 
 enum _ScreenState { details, watching, success }
+
+const int _cooldownDurationSeconds = 75;
 
 class GameDetailsScreen extends StatefulWidget {
   final Game game;
@@ -21,6 +24,8 @@ class GameDetailsScreen extends StatefulWidget {
 class _GameDetailsScreenState extends State<GameDetailsScreen> {
   _ScreenState _state = _ScreenState.details;
   late int _adsWatched;
+  DateTime? _cooldownEndsAt;
+  Timer? _tickTimer;
 
   @override
   void initState() {
@@ -28,22 +33,58 @@ class _GameDetailsScreenState extends State<GameDetailsScreen> {
     _adsWatched = widget.game.adsWatched;
   }
 
+  @override
+  void dispose() {
+    _tickTimer?.cancel();
+    super.dispose();
+  }
+
+  int get _cooldownSecondsLeft {
+    if (_cooldownEndsAt == null) return 0;
+    final diff = _cooldownEndsAt!.difference(DateTime.now()).inSeconds;
+    return diff > 0 ? diff : 0;
+  }
+
+  bool get _inCooldown => _cooldownSecondsLeft > 0;
+
+  void _startTickTimerIfNeeded() {
+    _tickTimer?.cancel();
+    if (!_inCooldown) return;
+    _tickTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return;
+      if (!_inCooldown) {
+        timer.cancel();
+      }
+      setState(() {});
+    });
+  }
+
   Future<void> _watchAd() async {
+    if (_inCooldown) return;
     setState(() => _state = _ScreenState.watching);
     // Simulated ad playback — replaced with real HMS/Mintegral SDK call later.
     await Future.delayed(const Duration(seconds: 2));
     if (!mounted) return;
     setState(() {
       _adsWatched = (_adsWatched + 1).clamp(0, widget.game.adsRequired);
+      _cooldownEndsAt =
+          DateTime.now().add(const Duration(seconds: _cooldownDurationSeconds));
       _state = _ScreenState.success;
     });
+    _startTickTimerIfNeeded();
   }
 
   Future<void> _continue() async {
     setState(() => _state = _ScreenState.details);
-    await Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => const CooldownScreen()),
-    );
+    if (_cooldownEndsAt != null) {
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => CooldownScreen(cooldownEndsAt: _cooldownEndsAt!),
+        ),
+      );
+      if (!mounted) return;
+      setState(() {});
+    }
   }
 
   @override
@@ -65,6 +106,7 @@ class _GameDetailsScreenState extends State<GameDetailsScreen> {
                   key: const ValueKey('details'),
                   game: widget.game,
                   adsWatched: _adsWatched,
+                  cooldownSecondsLeft: _cooldownSecondsLeft,
                   onWatchAd: _watchAd,
                 ),
               _ScreenState.watching => _WatchingView(
@@ -88,12 +130,14 @@ class _GameDetailsScreenState extends State<GameDetailsScreen> {
 class _DetailsView extends StatelessWidget {
   final Game game;
   final int adsWatched;
+  final int cooldownSecondsLeft;
   final VoidCallback onWatchAd;
 
   const _DetailsView({
     super.key,
     required this.game,
     required this.adsWatched,
+    required this.cooldownSecondsLeft,
     required this.onWatchAd,
   });
 
@@ -102,6 +146,18 @@ class _DetailsView extends StatelessWidget {
     final remaining = (game.adsRequired - adsWatched).clamp(0, game.adsRequired);
     final progress = game.adsRequired == 0 ? 0.0 : adsWatched / game.adsRequired;
     final isComplete = adsWatched >= game.adsRequired;
+    final inCooldown = cooldownSecondsLeft > 0;
+
+    String buttonLabel;
+    if (isComplete) {
+      buttonLabel = 'GOAL REACHED';
+    } else if (inCooldown) {
+      final m = (cooldownSecondsLeft ~/ 60).toString().padLeft(2, '0');
+      final s = (cooldownSecondsLeft % 60).toString().padLeft(2, '0');
+      buttonLabel = 'NEXT AD IN $m:$s';
+    } else {
+      buttonLabel = 'WATCH REWARDED AD';
+    }
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
@@ -172,6 +228,7 @@ class _DetailsView extends StatelessWidget {
                     child: TweenAnimationBuilder<double>(
                       tween: Tween(begin: 0, end: progress),
                       duration: const Duration(milliseconds: 700),
+                      duration: const Duration(milliseconds: 700),
                       curve: Curves.easeOutCubic,
                       builder: (context, value, _) => LinearProgressIndicator(
                         value: value,
@@ -219,9 +276,13 @@ class _DetailsView extends StatelessWidget {
           FadeInUp(
             delay: const Duration(milliseconds: 220),
             child: NeonButton(
-              label: isComplete ? 'GOAL REACHED' : 'WATCH REWARDED AD',
-              icon: isComplete ? Icons.check_circle_rounded : Icons.play_circle_fill_rounded,
-              onPressed: isComplete ? null : onWatchAd,
+              label: buttonLabel,
+              icon: isComplete
+                  ? Icons.check_circle_rounded
+                  : (inCooldown
+                      ? Icons.timer_rounded
+                      : Icons.play_circle_fill_rounded),
+              onPressed: (isComplete || inCooldown) ? null : onWatchAd,
               height: 60,
             ),
           ),

@@ -8,30 +8,26 @@ import '../../core/widgets/neon_button.dart';
 import '../minigames/mini_game_hub_screen.dart';
 
 class CooldownScreen extends StatefulWidget {
-  final int cooldownSeconds;
+  final DateTime cooldownEndsAt;
 
-  const CooldownScreen({super.key, this.cooldownSeconds = 75});
+  const CooldownScreen({super.key, required this.cooldownEndsAt});
 
   @override
   State<CooldownScreen> createState() => _CooldownScreenState();
 }
 
 class _CooldownScreenState extends State<CooldownScreen> {
-  late int _secondsLeft;
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _secondsLeft = widget.cooldownSeconds;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) return;
-      if (_secondsLeft <= 1) {
+      if (_secondsLeft <= 0) {
         timer.cancel();
-        setState(() => _secondsLeft = 0);
-      } else {
-        setState(() => _secondsLeft--);
       }
+      setState(() {});
     });
   }
 
@@ -41,18 +37,25 @@ class _CooldownScreenState extends State<CooldownScreen> {
     super.dispose();
   }
 
+  int get _secondsLeft {
+    final diff = widget.cooldownEndsAt.difference(DateTime.now()).inSeconds;
+    return diff > 0 ? diff : 0;
+  }
+
   String get _formatted {
-    final m = (_secondsLeft ~/ 60).toString().padLeft(2, '0');
-    final s = (_secondsLeft % 60).toString().padLeft(2, '0');
+    final left = _secondsLeft;
+    final m = (left ~/ 60).toString().padLeft(2, '0');
+    final s = (left % 60).toString().padLeft(2, '0');
     return '$m:$s';
+  }
+
+  void _goHome() {
+    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   @override
   Widget build(BuildContext context) {
     final bool ready = _secondsLeft == 0;
-    final double progress = widget.cooldownSeconds == 0
-        ? 1
-        : 1 - (_secondsLeft / widget.cooldownSeconds);
 
     return Scaffold(
       body: Container(
@@ -83,16 +86,12 @@ class _CooldownScreenState extends State<CooldownScreen> {
                       SizedBox(
                         width: 170,
                         height: 170,
-                        child: TweenAnimationBuilder<double>(
-                          tween: Tween(begin: 0, end: progress),
-                          duration: const Duration(milliseconds: 400),
-                          builder: (context, value, _) => CircularProgressIndicator(
-                            value: value,
-                            strokeWidth: 8,
-                            backgroundColor: AppColors.surface,
-                            valueColor: AlwaysStoppedAnimation(
-                              ready ? AppColors.success : AppColors.primary,
-                            ),
+                        child: CircularProgressIndicator(
+                          value: ready ? 1 : null,
+                          strokeWidth: 8,
+                          backgroundColor: AppColors.surface,
+                          valueColor: AlwaysStoppedAnimation(
+                            ready ? AppColors.success : AppColors.primary,
                           ),
                         ),
                       ),
@@ -159,7 +158,7 @@ class _CooldownScreenState extends State<CooldownScreen> {
                 FadeInUp(
                   delay: const Duration(milliseconds: 200),
                   child: OutlinedButton(
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: _goHome,
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                           vertical: 14, horizontal: 24),
