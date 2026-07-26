@@ -6,6 +6,8 @@ import '../../core/widgets/glass_card.dart';
 import '../../core/models/game.dart';
 import '../game_details/game_details_screen.dart';
 import '../wallet/wallet_screen.dart';
+import '../referral/referral_screen.dart';
+import '../profile/profile_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -382,6 +384,18 @@ class _BottomNav extends StatelessWidget {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => const WalletScreen(),
+                    ),
+                  );
+                } else if (i == 3) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const ReferralScreen(),
+                    ),
+                  );
+                } else if (i == 4) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const ProfileScreen(),
                     ),
                   );
                 }
